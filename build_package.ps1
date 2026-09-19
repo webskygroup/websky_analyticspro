@@ -14,3 +14,4 @@ Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $package -Compr
 Remove-Item -LiteralPath $staging -Recurse -Force
 Write-Output $package
 
+

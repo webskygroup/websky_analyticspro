@@ -6,8 +6,9 @@ $package = Join-Path $root 'websky_analyticspro.ocmod.zip'
 if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
 New-Item -ItemType Directory -Path $staging | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'install.json') -Destination $staging
-Copy-Item -LiteralPath (Join-Path $root 'extension\websky_analyticspro\admin') -Destination (Join-Path $staging 'admin') -Recurse
-Copy-Item -LiteralPath (Join-Path $root 'extension\websky_analyticspro\catalog') -Destination (Join-Path $staging 'catalog') -Recurse
+New-Item -ItemType Directory -Path (Join-Path $staging 'extension\websky_analyticspro') -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $root 'extension\websky_analyticspro\admin') -Destination (Join-Path $staging 'extension\websky_analyticspro\admin') -Recurse
+Copy-Item -LiteralPath (Join-Path $root 'extension\websky_analyticspro\catalog') -Destination (Join-Path $staging 'extension\websky_analyticspro\catalog') -Recurse
 
 if (Test-Path -LiteralPath $package) { Remove-Item -LiteralPath $package -Force }
 Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $package -CompressionLevel Optimal

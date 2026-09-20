@@ -1,8 +1,35 @@
+{% if measurement_id %}
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ measurement_id }}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',{{ measurement_id|json_encode|raw }});</script>
+{% endif %}
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', {{ measurement_id|json_encode|raw }});
+(function () {
+  'use strict';
+  var endpoint = {{ collect_url|json_encode|raw }};
+  var key = 'websky_analytics_session';
+  var visitorKey = 'websky_analytics_visitor';
+  function id(name) { var value = localStorage.getItem(name); if (!value) { value = crypto.randomUUID ? crypto.randomUUID().replace(/-/g,'') : String(Date.now()) + Math.random().toString(16).slice(2); localStorage.setItem(name, value); } return value; }
+  function query(name) { return new URLSearchParams(location.search).get(name) || ''; }
+  function source() { return query('utm_source') || query('source') || (document.referrer ? (new URL(document.referrer)).hostname : 'direct'); }
+  function send(name, extra) {
+    var body = Object.assign({event_name:name,session_id:id(key),visitor_id:id(visitorKey),page_url:location.href,page_title:document.title,referrer:document.referrer,source:source(),medium:query('utm_medium'),campaign:query('utm_campaign'),currency:document.documentElement.getAttribute('data-currency') || ''}, extra || {});
+    if (window.gtag && name !== 'page_view') window.gtag('event', name, extra || {});
+    if (navigator.sendBeacon) navigator.sendBeacon(endpoint, new Blob([JSON.stringify(body)], {type:'application/json'})); else fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),keepalive:true});
+  }
+  window.WebSkyAnalytics = { track: send };
+  send('page_view');
+  document.addEventListener('click', function (event) {
+    var el = event.target.closest('[data-product-id]');
+    if (el) send('product_view', {product_id: parseInt(el.dataset.productId || '0', 10)});
+  });
+  document.addEventListener('submit', function (event) {
+    var form = event.target;
+    if (!form || !form.action) return;
+    var action = form.action.toLowerCase();
+    var product = form.querySelector('[name="product_id"], [name="product_id[]"]');
+    var pid = product ? parseInt(product.value || '0', 10) : 0;
+    if (action.indexOf('cart') !== -1) send('add_to_cart', {product_id:pid, quantity:parseInt((form.querySelector('[name="quantity"]') || {}).value || '1', 10)});
+    if (action.indexOf('checkout') !== -1) send('checkout_start');
+  }, true);
+})();
 </script>
-

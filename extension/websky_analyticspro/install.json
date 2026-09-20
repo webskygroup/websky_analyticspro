@@ -1,7 +1,7 @@
 {
   "name": "Websky Analytics Pro",
-  "description": "Native OpenCart 4 Analytics Pro measurement tag integration.",
-  "version": "1.0.0",
+  "description": "First-party event tracking, GA4, customer journeys, product analytics and reporting for OpenCart 4.1.",
+  "version": "2.0.0",
   "author": "Websky Group",
   "link": "https://opencart-ir.com"
 }
